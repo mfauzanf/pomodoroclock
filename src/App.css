@@ -5,4 +5,55 @@
   font-size: larger;
 }
 
- 
+#timer-control {
+  display: flex;
+  align-content: center;
+  margin-top:  50px;
+  
+}
+
+.label {
+  display: flex;
+  text-align: center;
+  margin: 0 auto;
+}
+.break-ctrl{
+  display: inline-block;
+  justify-content: center;
+  margin: 0 auto;
+  margin-right: 30px;
+}
+
+.session-ctrl {
+  display: inline-block;
+  justify-content: center;
+  margin: 0 auto;
+  margin-left: -10px;
+}
+
+
+
+#label-session{
+  align-content: center;
+  margin-top:  50px;
+}
+
+#timer-label{
+  display: flex;; 
+  justify-content: center;
+  margin:0 auto;
+  clear: both;
+}
+
+#time-left{
+  display: flex; 
+  justify-content: center;
+  margin:0 auto;
+  clear: both;
+}
+
+#click-timer,#start_stop,#reset{
+  display: flex;
+  justify-content: center;
+  
+}
