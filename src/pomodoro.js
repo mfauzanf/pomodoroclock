@@ -26,14 +26,12 @@ class Pomodoro extends React.Component {
     this.state = {
       breakLength: 5,
       sessionLength: 25,
+      clock:"",
       timerState: "stopped",
       timerType: "Session",
-      timer: 1500,
-      intervalID: "",
     };
-    this.timerDecrement = this.timerDecrement.bind(this);
-    this.timerIncrement = this.timerIncrement.bind(this);
-    this.toClock = this.toClock.bind(this);
+     
+    this.timerCount=this.timerCount.bind(this);
     this.breakLengthSetUp = this.breakLengthSetUp.bind(this);
     this.breakLengthSetDown = this.breakLengthSetDown.bind(this);
     this.sessionLengthSetDown = this.sessionLengthSetDown.bind(this);
@@ -72,22 +70,28 @@ class Pomodoro extends React.Component {
     }
   }
 
-  timerDecrement() {
-    this.setState({ timer: this.state.timer - 1 });
-  }
-  timerIncrement() {
-    this.setState({ timer: this.state.timer + 1 });
+  timerCount() {
+    let duration=this.state.sessionLength*60
+    var timer = duration, minutes, seconds;
+    setInterval(function () {
+        minutes = parseInt(timer / 60, 10)
+        seconds = parseInt(timer % 60, 10);
+
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
+
+        this.setState({
+          clock:minutes + ":" + seconds
+        });
+       
+        if (--timer < 0) {
+            timer = duration;
+        }
+    }.bind(this), 1000);
   }
 
   
-
-  toClock() {
-    let minutes = Math.floor(this.state.timer / 60);
-    let seconds = this.state.timer - minutes * 60;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    return minutes + ":" + seconds;
-  }
+ 
   render() {
     return (
       <div>
@@ -128,11 +132,11 @@ class Pomodoro extends React.Component {
 
         <div id="label-session">
           <div id="timer-label">{this.state.timerType}</div>
-          <div id="time-left">{this.toClock()}</div>
+    <div id="time-left">{this.state.clock}</div>
         </div>
 
         <div id="click-timer">
-          <button id="start_stop" onClick>
+          <button id="start_stop" onClick={this.timerCount}>
             <span className="fa fa-play fa-2x"></span>
             <span className="fa fa-pause fa-2x"></span>
           </button>
