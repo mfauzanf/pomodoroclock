@@ -1,24 +1,6 @@
 import React from "react";
 
-(function () {
-  window.accurateInterval = function (fn, time) {
-    var cancel, nextAt, timeout, wrapper;
-    nextAt = new Date().getTime() + time;
-    timeout = null;
-    wrapper = function () {
-      nextAt += time;
-      timeout = setTimeout(wrapper, nextAt - new Date().getTime());
-      return fn();
-    };
-    cancel = function () {
-      return clearTimeout(timeout);
-    };
-    timeout = setTimeout(wrapper, nextAt - new Date().getTime());
-    return {
-      cancel: cancel,
-    };
-  };
-}.call(this));
+var globalBackupTimer=""
 
 class Pomodoro extends React.Component {
   constructor(props) {
@@ -26,16 +8,20 @@ class Pomodoro extends React.Component {
     this.state = {
       breakLength: 5,
       sessionLength: 25,
-      clock:"",
+      clock: "25:00",
       timerState: "stopped",
       timerType: "Session",
+      backupTimer:"",
+      interval: "",
+      timerLength: "",
     };
-     
-    this.timerCount=this.timerCount.bind(this);
+
+    this.timerCount = this.timerCount.bind(this);
     this.breakLengthSetUp = this.breakLengthSetUp.bind(this);
     this.breakLengthSetDown = this.breakLengthSetDown.bind(this);
     this.sessionLengthSetDown = this.sessionLengthSetDown.bind(this);
     this.sessionLengthSetUp = this.sessionLengthSetUp.bind(this);
+    this.reset = this.reset.bind(this);
   }
 
   breakLengthSetUp() {
@@ -58,7 +44,10 @@ class Pomodoro extends React.Component {
     if (this.state.sessionLength === 1) {
       return;
     } else {
-      this.setState({ sessionLength: this.state.sessionLength + 1 });
+      this.setState({
+        clock: this.state.sessionLength + 1 + ":00",
+        sessionLength: this.state.sessionLength + 1,
+      });
     }
   }
 
@@ -66,32 +55,106 @@ class Pomodoro extends React.Component {
     if (this.state.sessionLength === 1) {
       return;
     } else {
-      this.setState({ sessionLength: this.state.sessionLength - 1 });
+      this.setState({
+        clock: this.state.sessionLength - 1 + ":00",
+        sessionLength: this.state.sessionLength - 1,
+      });
     }
   }
 
   timerCount() {
-    let duration=this.state.sessionLength*60
-    var timer = duration, minutes, seconds;
-    setInterval(function () {
-        minutes = parseInt(timer / 60, 10)
-        seconds = parseInt(timer % 60, 10);
+    let duration = this.state.sessionLength * 60;
+    
+    var timer = duration,
+      minutes,
+      seconds;
 
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
+    if (this.state.timerState === "Running") {
+      globalBackupTimer=this.state.timerLength
+      console.log("globalBackupTimer"+globalBackupTimer)
+      this.setState({
+        timerState: "Paused",
+        // backupTimer: this.state.timerLength,
+      });
+      clearInterval(this.interval);
+    } 
+    else if (this.state.timerState === "Paused") {
+      console.log("globalBackupTimer"+globalBackupTimer)
+      duration = globalBackupTimer ;
+       var timer = duration,minutes,seconds;
 
-        this.setState({
-          clock:minutes + ":" + seconds
-        });
-       
-        if (--timer < 0) {
+      this.setState({
+        timerLength: timer,
+      });
+     this.interval= setInterval(
+        function () {
+          minutes = parseInt(this.state.timerLength / 60, 10);
+          seconds = parseInt(this.state.timerLength % 60, 10);
+
+          minutes = minutes < 10 ? "0" + minutes : minutes;
+          seconds = seconds < 10 ? "0" + seconds : seconds;
+          console.log(this.state.timerLength);
+          this.setState({
+            timerLength: this.state.timerLength - 1,
+            clock: minutes + ":" + seconds,
+            timerState: "Running",
+          });
+
+          if (this.state.timerLength < 0) {
             timer = duration;
-        }
-    }.bind(this), 1000);
+          }
+        }.bind(this),
+        1000
+      );
+        
+       
+
+    } 
+    else {
+      this.setState({
+        timerLength: timer,
+      });
+       this.interval= setInterval(
+        function () {
+          minutes = parseInt(this.state.timerLength / 60, 10);
+          seconds = parseInt(this.state.timerLength % 60, 10);
+
+          minutes = minutes < 10 ? "0" + minutes : minutes;
+          seconds = seconds < 10 ? "0" + seconds : seconds;
+          console.log(this.state.timerLength);
+          this.setState({
+            timerLength: this.state.timerLength - 1,
+            clock: minutes + ":" + seconds,
+            timerState: "Running",
+          });
+
+          if (this.state.timerLength < 0) {
+            timer = duration;
+          }
+        }.bind(this),
+        1000
+      );
+       
+    }
   }
 
-  
- 
+  reset() {
+    clearInterval(this.interval)
+    this.setState({
+      breakLength: 5,
+      sessionLength: 25,
+      timerState: "stopped",
+      timerType: "Session",
+      clock: "25:00",
+      
+      interval: "",
+    });
+
+    // this.state.intervalID && this.state.intervalID.cancel();
+    // this.audioBeep.pause();
+    // this.audioBeep.currentTime = 0;
+  }
+
   render() {
     return (
       <div>
@@ -117,13 +180,13 @@ class Pomodoro extends React.Component {
           <div className="session-ctrl">
             <span className="label">SESSION LENGTH</span>
             <button
-            onClick={this.sessionLengthSetDown}
+              onClick={this.sessionLengthSetDown}
               id="session-decrement"
               className="fa fa-arrow-down fa-2x"
             ></button>{" "}
-            <div id="session-length">{this.state.sessionLength}</div>{" "}
+            <div id="session-length">{this.state.sessionLength}</div>
             <button
-            onClick={this.sessionLengthSetUp}
+              onClick={this.sessionLengthSetUp}
               id="session-increment"
               className="fa fa-arrow-up fa-2x"
             ></button>
@@ -132,7 +195,7 @@ class Pomodoro extends React.Component {
 
         <div id="label-session">
           <div id="timer-label">{this.state.timerType}</div>
-    <div id="time-left">{this.state.clock}</div>
+          <div id="time-left">{this.state.clock}</div>
         </div>
 
         <div id="click-timer">
@@ -141,7 +204,7 @@ class Pomodoro extends React.Component {
             <span className="fa fa-pause fa-2x"></span>
           </button>
 
-          <button id="reset" onClick>
+          <button id="reset" onClick={this.reset}>
             <span className="fa fa-refresh fa-2x"></span>
           </button>
         </div>
@@ -151,3 +214,9 @@ class Pomodoro extends React.Component {
 }
 
 export default Pomodoro;
+
+/*
+Reference :
+https://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
+
+*/
