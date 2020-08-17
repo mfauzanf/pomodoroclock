@@ -263,7 +263,7 @@ class Pomodoro extends React.Component {
         </nav>
         <div id="timer-control">
           <div className="break-ctrl">
-            <span className="label">BREAK LENGTH</span>
+            <span id="break-label" className="label">BREAK LENGTH</span>
             <button
               onClick={this.breakLengthSetDown}
               id="break-decrement"
@@ -278,7 +278,7 @@ class Pomodoro extends React.Component {
           </div>
 
           <div className="session-ctrl">
-            <span className="label">SESSION LENGTH</span>
+            <span id="session-label" className="label">SESSION LENGTH</span>
             <button
               onClick={this.sessionLengthSetDown}
               id="session-decrement"
