@@ -1,6 +1,5 @@
 import React from "react";
 
-var globalBackupTimer=""
 
 class Pomodoro extends React.Component {
   constructor(props) {
@@ -70,17 +69,18 @@ class Pomodoro extends React.Component {
       seconds;
 
     if (this.state.timerState === "Running") {
-      globalBackupTimer=this.state.timerLength
-      console.log("globalBackupTimer"+globalBackupTimer)
       this.setState({
+        backupTimer:this.state.timerLength,
         timerState: "Paused",
-        // backupTimer: this.state.timerLength,
-      });
+      })
+      
+      // console.log("backupTimer"+this.state.backupTimer)
       clearInterval(this.interval);
     } 
     else if (this.state.timerState === "Paused") {
-      console.log("globalBackupTimer"+globalBackupTimer)
-      duration = globalBackupTimer ;
+      
+      // console.log("backupTimer"+this.state.backupTimer)
+      duration = this.state.backupTimer ;
        var timer = duration,minutes,seconds;
 
       this.setState({
@@ -146,7 +146,6 @@ class Pomodoro extends React.Component {
       timerState: "stopped",
       timerType: "Session",
       clock: "25:00",
-      
       interval: "",
     });
 
