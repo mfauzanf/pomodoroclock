@@ -21,6 +21,7 @@ class Pomodoro extends React.Component {
     this.sessionLengthSetDown = this.sessionLengthSetDown.bind(this);
     this.sessionLengthSetUp = this.sessionLengthSetUp.bind(this);
     this.reset = this.reset.bind(this);
+    this.audio=new Audio("https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav");
   }
 
   breakLengthSetUp() {
@@ -40,11 +41,17 @@ class Pomodoro extends React.Component {
   }
 
   sessionLengthSetUp() {
-    if (this.state.sessionLength === 1) {
+    if (this.state.sessionLength === 60) {
       return;
     } else {
+      var localSession=this.state.sessionLength
+      var length = (localSession+1)*60
+      var toMinutes = parseInt(length / 60, 10);
+      var toSeconds=parseInt(length % 60, 10);
+      toMinutes = toMinutes < 10 ? "0" + toMinutes : toMinutes;
+      toSeconds = toSeconds < 10 ? "0" + toSeconds : toSeconds;
       this.setState({
-        clock: this.state.sessionLength + 1 + ":00",
+        clock: toMinutes+":"+toSeconds,
         sessionLength: this.state.sessionLength + 1,
       });
     }
@@ -54,8 +61,14 @@ class Pomodoro extends React.Component {
     if (this.state.sessionLength === 1) {
       return;
     } else {
+      var localSession=this.state.sessionLength
+      var length = (localSession-1)*60
+      var toMinutes = parseInt(length / 60, 10);
+      var toSeconds=parseInt(length % 60, 10);
+      toMinutes = toMinutes < 10 ? "0" + toMinutes : toMinutes;
+      toSeconds = toSeconds < 10 ? "0" + toSeconds : toSeconds;
       this.setState({
-        clock: this.state.sessionLength - 1 + ":00",
+        clock: toMinutes+":"+toSeconds,
         sessionLength: this.state.sessionLength - 1,
       });
     }
@@ -101,14 +114,13 @@ class Pomodoro extends React.Component {
           });
 
           if (this.state.timerLength < 0) {
-            timer = duration;
+            this.audio.play()
+            clearInterval(this.interval)
           }
         }.bind(this),
         1000
       );
         
-       
-
     } 
     else {
       this.setState({
@@ -129,8 +141,11 @@ class Pomodoro extends React.Component {
           });
 
           if (this.state.timerLength < 0) {
-            timer = duration;
+            this.audio.play()
+            clearInterval(this.interval)
+            
           }
+          // this.audio.pause()
         }.bind(this),
         1000
       );
@@ -217,5 +232,4 @@ export default Pomodoro;
 /*
 Reference :
 https://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
-
 */
